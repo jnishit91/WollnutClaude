@@ -1,0 +1,432 @@
+// prisma/schema.prisma
+// Wollnut Labs — Full Production Schema
+// E2E Networks GPU Cloud Reseller Platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum InstanceStatus {
+  PROVISIONING
+  RUNNING
+  STOPPED
+  PAUSED
+  FAILED
+  DESTROYING
+  DESTROYED
+}
+
+enum TransactionType {
+  CREDIT_PURCHASE
+  USAGE_DEDUCTION
+  REFUND
+  BONUS
+  PROMO
+}
+
+enum VolumeStatus {
+  CREATING
+  AVAILABLE
+  ATTACHED
+  DETACHING
+  DELETING
+  DELETED
+  ERROR
+}
+
+// ─────────────────────────────────────────────
+// AUTH (NextAuth.js compatible)
+// ─────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
+
+// ─────────────────────────────────────────────
+// CORE MODELS
+// ─────────────────────────────────────────────
+
+model User {
+  id              String    @id @default(cuid())
+  name            String?
+  email           String    @unique
+  emailVerified   DateTime?
+  hashedPassword  String?
+  image           String?
+  role            Role      @default(USER)
+  creditsBalance  Decimal   @default(0) @db.Decimal(12, 4)
+  autoRecharge    Boolean   @default(false)
+  autoRechargeAmt Decimal?  @db.Decimal(10, 2)
+  autoRechargeAt  Decimal?  @db.Decimal(10, 2) // threshold that triggers recharge
+  stripeCustomerId String?  @unique
+  onboardedAt     DateTime? // tracks when user completed onboarding
+  bannedAt        DateTime?
+  banReason       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  instances     Instance[]
+  sshKeys       SSHKey[]
+  apiKeys       ApiKey[]
+  volumes       Volume[]
+  transactions  Transaction[]
+  invoices      Invoice[]
+  notifications Notification[]
+
+  @@index([email])
+  @@index([role])
+  @@index([stripeCustomerId])
+}
+
+model Instance {
+  id   String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name   String
+
+  status InstanceStatus @default(PROVISIONING)
+
+  // E2E Networks mapping
+  e2eNodeId  String? @unique
+  e2ePlanId  String
+  e2eImageId String
+  e2eRegion  String  @default("Delhi")
+
+  // Specs (denormalized from E2E plan for fast display)
+  gpuType    String  // "H100", "H200", "B200", "A100"
+  gpuCount   Int     @default(1)
+  vram       String  // "80GB"
+  vcpus      Int
+  ram        String  // "250GB"
+  storageGb  Int
+
+  // Pricing (locked at creation time)
+  pricePerHour   Decimal @db.Decimal(10, 4)
+  pricePerMinute Decimal @db.Decimal(10, 6)
+
+  // Access details (populated after provisioning)
+  ipAddress    String?
+  sshPort      Int?    @default(22)
+  jupyterUrl   String?
+  jupyterToken String?
+
+  // Lifecycle
+  autoShutdownMin   Int?      // auto-stop after N minutes of runtime
+  startedAt         DateTime?
+  stoppedAt         DateTime?
+  lastBilledAt      DateTime?
+  totalBilledAmount Decimal   @default(0) @db.Decimal(12, 4)
+  destroyedAt       DateTime?
+  failReason        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  sshKeyId String?
+  sshKey   SSHKey?  @relation(fields: [sshKeyId], references: [id], onDelete: SetNull)
+  volumes  Volume[]
+  usageLogs UsageLog[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([e2eNodeId])
+  @@index([userId, status])
+}
+
+model SSHKey {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  publicKey   String   @db.Text
+  fingerprint String
+  e2eKeyId    String?  // E2E Networks SSH key ID for sync
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  instances Instance[]
+
+  @@index([userId])
+  @@unique([userId, name])
+}
+
+model ApiKey {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String
+  keyHash    String    @unique
+  keyPrefix  String    // first 8 chars for display: "wn_ak_..."
+  scopes     String[]  @default(["instances:read", "instances:write", "billing:read"])
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+  @@index([keyHash])
+}
+
+model Volume {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  sizeGb      Int
+  e2eVolumeId String?      @unique
+  status      VolumeStatus @default(CREATING)
+  mountPath   String?
+  instanceId  String?
+  instance    Instance?    @relation(fields: [instanceId], references: [id], onDelete: SetNull)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([userId])
+  @@index([instanceId])
+}
+
+// ─────────────────────────────────────────────
+// GPU PLANS & TEMPLATES
+// ─────────────────────────────────────────────
+
+model GPUPlan {
+  id                    String  @id @default(cuid())
+  e2ePlanId             String  @unique
+  gpuName               String  // "NVIDIA H100"
+  gpuShortName          String  // "H100"
+  vram                  String  // "80GB SXM"
+  vcpus                 Int
+  ram                   String
+  storage               String
+  infiniband            String?
+  e2ePricePerHour       Decimal @db.Decimal(10, 4)
+  wollnutPricePerHour   Decimal @db.Decimal(10, 4)
+  wollnutPricePerMinute Decimal @db.Decimal(10, 6)
+  available             Boolean @default(true)
+  availableCount        String? // "1x, 2x, 4x, 8x"
+  sortOrder             Int     @default(0)
+  category              String  @default("gpu") // "gpu", "cpu", "inference"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([available])
+  @@index([gpuShortName])
+}
+
+model Template {
+  id               String   @id @default(cuid())
+  name             String   // "PyTorch 2.2 + CUDA 12.1"
+  slug             String   @unique
+  description      String   @db.Text
+  category         String   // "LLM Training", "Image Gen", "General ML"
+  e2eImageId       String   // maps to E2E image
+  icon             String?
+  tags             String[] // ["pytorch", "cuda", "deep-learning"]
+  includedPackages String[] // ["PyTorch 2.2", "CUDA 12.1", "cuDNN 8.9"]
+  recommendedGpu   String?  // "H100 or A100"
+  minVram          String?  // "40GB"
+  featured         Boolean  @default(false)
+  active           Boolean  @default(true)
+  sortOrder        Int      @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active, featured])
+  @@index([category])
+  @@index([slug])
+}
+
+model AIModel {
+  id              String  @id @default(cuid())
+  name            String  // "DeepSeek R1"
+  slug            String  @unique
+  provider        String  // "DeepSeek", "Meta", "OpenAI"
+  category        String  // "Text-to-Text", "Image-Text-to-Text"
+  description     String  @db.Text
+  parameters      String? // "671B"
+  contextLength   String? // "128K"
+  vramRequired    String  // "80GB minimum"
+  recommendedGpu  String  // "H100 8x or H200 4x"
+  templateSlug    String? // links to a Template for one-click deploy
+  huggingFaceId   String? // "deepseek-ai/DeepSeek-R1"
+  licenseType     String? // "Apache 2.0", "Meta Community", etc.
+  featured        Boolean @default(false)
+  active          Boolean @default(true)
+  sortOrder       Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active, featured])
+  @@index([category])
+  @@index([slug])
+}
+
+// ─────────────────────────────────────────────
+// BILLING & TRANSACTIONS
+// ─────────────────────────────────────────────
+
+model Transaction {
+  id              String          @id @default(cuid())
+  userId          String
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type            TransactionType
+  amount          Decimal         @db.Decimal(12, 4)
+  balance         Decimal         @db.Decimal(12, 4) // balance AFTER this transaction
+  description     String
+  stripePaymentId String?
+  stripeSessionId String?
+  instanceId      String?
+  metadata        Json?           // flexible extra data
+  createdAt       DateTime        @default(now())
+
+  @@index([userId])
+  @@index([userId, createdAt])
+  @@index([type])
+  @@index([stripePaymentId])
+}
+
+model UsageLog {
+  id            String    @id @default(cuid())
+  instanceId    String
+  instance      Instance  @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  userId        String
+  startTime     DateTime
+  endTime       DateTime?
+  durationMin   Int?
+  amountCharged Decimal?  @db.Decimal(10, 4)
+  gpuType       String
+  pricePerMin   Decimal   @db.Decimal(10, 6)
+  createdAt     DateTime  @default(now())
+
+  @@index([instanceId])
+  @@index([userId])
+  @@index([userId, startTime])
+}
+
+model Invoice {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  month       String   // "2026-03"
+  totalAmount Decimal  @db.Decimal(12, 2)
+  currency    String   @default("USD")
+  breakdown   Json     // detailed per-instance breakdown
+  pdfUrl      String?
+  sentAt      DateTime?
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, month])
+  @@index([userId])
+}
+
+// ─────────────────────────────────────────────
+// NOTIFICATIONS
+// ─────────────────────────────────────────────
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String   // "instance_ready", "instance_stopped", "low_credits", etc.
+  title     String
+  message   String   @db.Text
+  actionUrl String?  // optional deep-link
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, read])
+  @@index([userId, createdAt])
+}
+
+// ─────────────────────────────────────────────
+// SYSTEM / PLATFORM
+// ─────────────────────────────────────────────
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String   // "instance.create", "admin.credit_adjust", etc.
+  resource   String   // "instance", "user", "plan"
+  resourceId String?
+  details    Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
