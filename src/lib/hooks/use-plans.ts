@@ -59,3 +59,53 @@ export function useTemplates(category?: string) {
     staleTime: 5 * 60_000,
   });
 }
+
+export function useTemplate(slug: string) {
+  return useQuery({
+    queryKey: ["template", slug],
+    queryFn: () =>
+      fetchJson<TemplateData & { e2eImageId: string }>(
+        `/api/v1/templates/${slug}`
+      ),
+    staleTime: 5 * 60_000,
+    enabled: !!slug,
+  });
+}
+
+export interface ModelData {
+  id: string;
+  name: string;
+  slug: string;
+  provider: string;
+  category: string;
+  description: string;
+  parameters: string | null;
+  contextLength: string | null;
+  vramRequired: string;
+  recommendedGpu: string;
+  templateSlug: string | null;
+  huggingFaceId: string | null;
+  licenseType: string | null;
+  featured: boolean;
+}
+
+export function useModels(category?: string) {
+  const url = category
+    ? `/api/v1/models?category=${encodeURIComponent(category)}`
+    : "/api/v1/models";
+
+  return useQuery({
+    queryKey: ["models", category ?? "all"],
+    queryFn: () => fetchJson<ModelData[]>(url),
+    staleTime: 5 * 60_000,
+  });
+}
+
+export function useModel(slug: string) {
+  return useQuery({
+    queryKey: ["model", slug],
+    queryFn: () => fetchJson<ModelData>(`/api/v1/models/${slug}`),
+    staleTime: 5 * 60_000,
+    enabled: !!slug,
+  });
+}
