@@ -97,12 +97,12 @@ class RateLimiter {
    */
   private cleanup(): void {
     const now = Date.now();
-    for (const [key, entry] of this.store) {
+    Array.from(this.store.entries()).forEach(([key, entry]) => {
       const elapsed = now - entry.lastRefill;
       if (elapsed > this.config.windowMs * 2) {
         this.store.delete(key);
       }
-    }
+    });
   }
 
   destroy(): void {

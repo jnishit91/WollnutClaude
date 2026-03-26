@@ -22,7 +22,7 @@ export const createSSHKeySchema = z.object({
     .max(16384, "SSH key is too long")
     .trim()
     .refine(
-      (key) => SSH_KEY_PATTERN.test(key.split("\n")[0].trim()),
+      (key) => SSH_KEY_PATTERN.test((key.split("\n")[0] ?? "").trim()),
       "Invalid SSH public key format. Must start with ssh-rsa, ssh-ed25519, or ecdsa-sha2-*"
     ),
   isDefault: z.boolean().default(false),

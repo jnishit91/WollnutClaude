@@ -64,7 +64,7 @@ export function generateToken(bytes: number = 32): string {
 export function computeSSHFingerprint(publicKey: string): string {
   // Extract the base64 portion of the SSH public key
   const parts = publicKey.trim().split(" ");
-  const keyData = parts.length >= 2 ? parts[1] : parts[0];
+  const keyData = (parts.length >= 2 ? parts[1] : parts[0]) ?? "";
 
   const buffer = Buffer.from(keyData, "base64");
   const hash = createHash("md5").update(buffer).digest("hex");

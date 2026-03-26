@@ -1,7 +1,7 @@
-// next.config.ts
-import type { NextConfig } from "next";
+// next.config.mjs
 
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   reactStrictMode: true,
 
   // Security headers
@@ -85,7 +85,9 @@ const nextConfig: NextConfig = {
   },
 
   // Server-side packages that shouldn't be bundled for the client
-  serverExternalPackages: ["bcryptjs", "nodemailer", "bullmq", "ioredis"],
+  experimental: {
+    serverComponentsExternalPackages: ["bcryptjs", "nodemailer", "bullmq", "ioredis"],
+  },
 
   // Environment variable validation at build time
   env: {
