@@ -110,6 +110,14 @@ export const DELETE = withErrorHandler(async (_req, context) => {
     }
   }
 
+  // Cancel auto-shutdown job
+  try {
+    const { cancelAutoShutdown } = await import("@/lib/jobs/auto-shutdown");
+    await cancelAutoShutdown(id);
+  } catch {
+    // Non-critical
+  }
+
   // Update instance status
   await prisma.instance.update({
     where: { id },

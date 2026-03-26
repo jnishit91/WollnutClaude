@@ -59,5 +59,15 @@ export const POST = withErrorHandler(async (_req, context) => {
     },
   });
 
+  // Reschedule auto-shutdown if configured
+  if (instance.autoShutdownMin) {
+    try {
+      const { scheduleAutoShutdown } = await import("@/lib/jobs/auto-shutdown");
+      await scheduleAutoShutdown(instance.id, instance.autoShutdownMin);
+    } catch {
+      // Non-critical — Redis may not be available
+    }
+  }
+
   return apiSuccess({ status: "PROVISIONING" });
 });

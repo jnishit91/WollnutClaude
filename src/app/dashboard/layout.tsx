@@ -6,6 +6,8 @@ import { useSession } from "next-auth/react";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
 import { dashboardNav } from "@/config/nav";
+import { NotificationBell } from "@/components/dashboard/NotificationBell";
+import { useBalance } from "@/lib/hooks/use-billing";
 import {
   LayoutDashboard,
   Server,
@@ -127,6 +129,27 @@ function Breadcrumbs({ pathname }: { pathname: string }) {
   );
 }
 
+function CreditsDisplay() {
+  const { data: balanceData } = useBalance();
+  const balance = balanceData?.balance ?? 0;
+
+  let colorClass = "text-accent-green";
+  if (balance < 2) colorClass = "text-accent-red";
+  else if (balance < 5) colorClass = "text-accent-amber";
+
+  return (
+    <Link
+      href="/dashboard/billing"
+      className="hidden items-center gap-1.5 rounded-lg bg-surface-800 px-3 py-1.5 transition-colors hover:bg-surface-700 sm:flex"
+    >
+      <span className="text-xs text-surface-400">Credits</span>
+      <span className={`text-sm font-semibold ${colorClass}`}>
+        ${balance.toFixed(2)}
+      </span>
+    </Link>
+  );
+}
+
 export default function DashboardLayout({
   children,
 }: {
@@ -181,20 +204,10 @@ export default function DashboardLayout({
 
           <div className="flex items-center gap-4">
             {/* Credits */}
-            <div className="hidden items-center gap-1.5 rounded-lg bg-surface-800 px-3 py-1.5 sm:flex">
-              <span className="text-xs text-surface-400">Credits</span>
-              <span className="text-sm font-semibold text-accent-green">
-                ${session?.user?.creditsBalance?.toFixed(2) ?? "0.00"}
-              </span>
-            </div>
+            <CreditsDisplay />
 
             {/* Notifications */}
-            <Link
-              href="/dashboard/notifications"
-              className="relative rounded-lg p-2 text-surface-400 transition-colors hover:bg-surface-800 hover:text-white"
-            >
-              <Bell className="h-5 w-5" />
-            </Link>
+            <NotificationBell />
 
             {/* User avatar */}
             <div className="flex items-center gap-2">

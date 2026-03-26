@@ -157,6 +157,16 @@ export const POST = withErrorHandler(async (req) => {
     },
   });
 
+  // Schedule auto-shutdown if configured
+  if (data.autoShutdownMin) {
+    try {
+      const { scheduleAutoShutdown } = await import("@/lib/jobs/auto-shutdown");
+      await scheduleAutoShutdown(instance.id, data.autoShutdownMin);
+    } catch {
+      // Non-critical — Redis may not be available
+    }
+  }
+
   log.info("Instance created", {
     userId: user.id,
     instanceId: instance.id,

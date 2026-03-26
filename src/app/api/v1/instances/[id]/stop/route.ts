@@ -86,6 +86,14 @@ export const POST = withErrorHandler(async (_req, context) => {
     }
   }
 
+  // Cancel auto-shutdown job
+  try {
+    const { cancelAutoShutdown } = await import("@/lib/jobs/auto-shutdown");
+    await cancelAutoShutdown(id);
+  } catch {
+    // Non-critical — Redis may not be available
+  }
+
   await prisma.instance.update({
     where: { id },
     data: {

@@ -15,7 +15,8 @@
     "db:seed": "tsx prisma/seed/index.ts",
     "db:studio": "prisma studio",
     "db:reset": "prisma migrate reset --force && npm run db:seed",
-    "worker": "tsx src/lib/jobs/queue.ts",
+    "worker": "tsx src/lib/jobs/worker.ts",
+    "worker:dev": "tsx watch src/lib/jobs/worker.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {
