@@ -17,8 +17,8 @@ class BillingService {
   async addCredits(
     userId: string,
     amount: number,
-    stripePaymentId?: string,
-    stripeSessionId?: string,
+    razorpayPaymentId?: string,
+    razorpayOrderId?: string,
     type: "CREDIT_PURCHASE" | "BONUS" | "PROMO" | "REFUND" = "CREDIT_PURCHASE"
   ): Promise<number> {
     const result = await prisma.$transaction(async (tx) => {
@@ -40,8 +40,8 @@ class BillingService {
             type === "CREDIT_PURCHASE"
               ? `Credits purchased: $${amount.toFixed(2)}`
               : `${type}: $${amount.toFixed(2)}`,
-          stripePaymentId: stripePaymentId ?? null,
-          stripeSessionId: stripeSessionId ?? null,
+          razorpayPaymentId: razorpayPaymentId ?? null,
+          razorpayOrderId: razorpayOrderId ?? null,
         },
       });
 

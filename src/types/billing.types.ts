@@ -22,7 +22,7 @@ export interface Transaction {
   amount: number;
   balance: number;
   description: string;
-  stripePaymentId: string | null;
+  razorpayPaymentId: string | null;
   instanceId: string | null;
   createdAt: string;
 }
@@ -71,7 +71,7 @@ export interface InvoiceBreakdown {
   totalCreditsPurchased: number;
 }
 
-/** Stripe checkout options for credit top-up */
+/** Razorpay checkout options for credit top-up */
 export interface CreditTopUpOption {
   amount: number;
   currency: "USD" | "INR";

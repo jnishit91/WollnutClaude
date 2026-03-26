@@ -75,7 +75,7 @@ export default function AdminSettingsPage() {
               { key: "NEW_USER_CREDITS", desc: "Signup bonus amount" },
               { key: "LOW_CREDITS_THRESHOLD", desc: "Low balance warning level" },
               { key: "E2E_API_TOKEN", desc: "E2E Networks API token" },
-              { key: "STRIPE_SECRET_KEY", desc: "Stripe API key" },
+              { key: "RAZORPAY_KEY_ID", desc: "Razorpay API key" },
               { key: "REDIS_URL", desc: "Redis connection for job queues" },
             ].map((env) => (
               <div

@@ -7,7 +7,7 @@ const SERVICES = [
   { name: "Web Dashboard", status: "operational" as const },
   { name: "REST API", status: "operational" as const },
   { name: "Instance Provisioning", status: "operational" as const },
-  { name: "Billing & Payments (Stripe)", status: "operational" as const },
+  { name: "Billing & Payments (Razorpay)", status: "operational" as const },
   { name: "Authentication (OAuth)", status: "operational" as const },
   { name: "E2E Networks Integration", status: "operational" as const },
   { name: "Background Jobs (BullMQ)", status: "operational" as const },

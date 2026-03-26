@@ -1,8 +1,8 @@
 // src/app/api/v1/billing/add-credits/route.ts
-// Create Stripe checkout session for credit top-up
+// Create Razorpay order for credit top-up
 
 import { requireAuth } from "@/lib/auth-helpers";
-import { stripeService } from "@/lib/services/stripe.service";
+import { razorpayService } from "@/lib/services/razorpay.service";
 import { addCreditsSchema } from "@/lib/validators/billing.schema";
 import { apiSuccess, withErrorHandler } from "@/lib/utils/api-response";
 import { billingLimiter } from "@/lib/utils/rate-limiter";
@@ -19,13 +19,20 @@ export const POST = withErrorHandler(async (req) => {
   const body = await req.json();
   const { amount, currency } = addCreditsSchema.parse(body);
 
-  const checkoutUrl = await stripeService.createCheckoutSession(
+  const order = await razorpayService.createOrder(
     user.id,
-    user.email!,
-    user.name ?? null,
     amount,
     currency
   );
 
-  return apiSuccess({ checkoutUrl });
+  return apiSuccess({
+    orderId: order.orderId,
+    amount: order.amount,
+    currency: order.currency,
+    keyId: order.keyId,
+    prefill: {
+      name: user.name ?? "",
+      email: user.email ?? "",
+    },
+  });
 });

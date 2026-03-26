@@ -131,7 +131,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "What payment methods do you accept?",
-    a: "We accept all major credit and debit cards via Stripe. You top up your credit balance and usage is deducted from it automatically.",
+    a: "We accept UPI, credit/debit cards, net banking, and wallets via Razorpay. You top up your credit balance and usage is deducted from it automatically.",
   },
   {
     q: "Can I switch GPU types?",

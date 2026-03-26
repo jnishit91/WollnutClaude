@@ -21,7 +21,7 @@ const sections = [
   {
     title: "4. Billing and Payment",
     content:
-      "The Service uses a credit-based billing system. You purchase credits via Stripe and usage is deducted per-minute from your balance. Prices are displayed at the time of instance creation. Credits are non-refundable except as required by law. If your credit balance reaches zero, running instances will be automatically stopped.",
+      "The Service uses a credit-based billing system. You purchase credits via Razorpay and usage is deducted per-minute from your balance. Prices are displayed at the time of instance creation. Credits are non-refundable except as required by law. If your credit balance reaches zero, running instances will be automatically stopped.",
   },
   {
     title: "5. Acceptable Use",

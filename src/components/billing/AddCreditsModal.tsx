@@ -3,12 +3,21 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { X } from "lucide-react";
-import { useAddCredits } from "@/lib/hooks/use-billing";
+import { useCreateOrder, useVerifyPayment } from "@/lib/hooks/use-billing";
 import {
   CREDIT_TOPUP_OPTIONS_USD,
   CREDIT_TOPUP_OPTIONS_INR,
 } from "@/types/billing.types";
 import { Spinner } from "@/components/shared/Spinner";
+
+declare global {
+  interface Window {
+    Razorpay: new (options: Record<string, unknown>) => {
+      open: () => void;
+      on: (event: string, handler: () => void) => void;
+    };
+  }
+}
 
 interface Props {
   open: boolean;
@@ -16,10 +25,11 @@ interface Props {
 }
 
 export function AddCreditsModal({ open, onClose }: Props) {
-  const [currency, setCurrency] = useState<"USD" | "INR">("USD");
+  const [currency, setCurrency] = useState<"USD" | "INR">("INR");
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState("");
-  const addCredits = useAddCredits();
+  const createOrder = useCreateOrder();
+  const verifyPayment = useVerifyPayment();
 
   if (!open) return null;
 
@@ -27,18 +37,77 @@ export function AddCreditsModal({ open, onClose }: Props) {
     currency === "USD" ? CREDIT_TOPUP_OPTIONS_USD : CREDIT_TOPUP_OPTIONS_INR;
   const amount = selectedAmount ?? (customAmount ? parseFloat(customAmount) : 0);
   const isValid = amount >= 5 && amount <= 10000;
+  const isPending = createOrder.isPending || verifyPayment.isPending;
 
-  const handleProceed = () => {
+  const loadRazorpayScript = (): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if (window.Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handleProceed = async () => {
     if (!isValid) return;
 
-    addCredits.mutate(
+    const loaded = await loadRazorpayScript();
+    if (!loaded) {
+      toast.error("Failed to load payment gateway. Please try again.");
+      return;
+    }
+
+    createOrder.mutate(
       { amount, currency },
       {
         onSuccess: (data) => {
-          window.location.href = data.checkoutUrl;
+          const rzp = new window.Razorpay({
+            key: data.keyId,
+            amount: data.amount,
+            currency: data.currency,
+            name: "Wollnut Labs",
+            description: `Add $${amount} credits`,
+            order_id: data.orderId,
+            prefill: data.prefill,
+            theme: {
+              color: "#3b5bdb",
+            },
+            handler: (response: {
+              razorpay_order_id: string;
+              razorpay_payment_id: string;
+              razorpay_signature: string;
+            }) => {
+              // Verify payment on server
+              verifyPayment.mutate(response, {
+                onSuccess: (result) => {
+                  toast.success(
+                    `$${result.amount.toFixed(2)} credits added successfully!`
+                  );
+                  onClose();
+                },
+                onError: (error) => {
+                  toast.error(
+                    error.message || "Payment verification failed"
+                  );
+                },
+              });
+            },
+            modal: {
+              ondismiss: () => {
+                toast.info("Payment cancelled");
+              },
+            },
+          });
+
+          rzp.open();
         },
         onError: (error) => {
-          toast.error(error.message || "Failed to create checkout session");
+          toast.error(error.message || "Failed to create order");
         },
       }
     );
@@ -60,7 +129,7 @@ export function AddCreditsModal({ open, onClose }: Props) {
 
         {/* Currency toggle */}
         <div className="mt-4 flex gap-2">
-          {(["USD", "INR"] as const).map((c) => (
+          {(["INR", "USD"] as const).map((c) => (
             <button
               key={c}
               onClick={() => {
@@ -111,7 +180,7 @@ export function AddCreditsModal({ open, onClose }: Props) {
           </label>
           <div className="mt-1 flex items-center gap-2">
             <span className="text-sm text-surface-400">
-              {currency === "USD" ? "$" : "₹"}
+              {currency === "USD" ? "$" : "\u20B9"}
             </span>
             <input
               type="number"
@@ -131,18 +200,22 @@ export function AddCreditsModal({ open, onClose }: Props) {
         {/* Proceed */}
         <button
           onClick={handleProceed}
-          disabled={!isValid || addCredits.isPending}
+          disabled={!isValid || isPending}
           className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-brand-600 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {addCredits.isPending ? (
+          {isPending ? (
             <>
               <Spinner className="h-4 w-4" />
-              Redirecting to payment...
+              Processing...
             </>
           ) : (
-            `Proceed to Payment — ${currency === "USD" ? "$" : "₹"}${amount || 0}`
+            `Pay ${currency === "USD" ? "$" : "\u20B9"}${amount || 0}`
           )}
         </button>
+
+        <p className="mt-3 text-center text-[10px] text-surface-500">
+          Secured by Razorpay. Supports UPI, cards, and net banking.
+        </p>
       </div>
     </div>
   );

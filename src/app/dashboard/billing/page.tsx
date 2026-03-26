@@ -84,7 +84,7 @@ function BillingPageContent() {
   const { data: invoices } = useInvoices();
   const autoRecharge = useAutoRecharge();
 
-  // Handle Stripe return
+  // Handle payment return
   useEffect(() => {
     if (searchParams.get("success") === "true") {
       toast.success("Credits added successfully!");

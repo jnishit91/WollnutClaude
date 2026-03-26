@@ -444,15 +444,18 @@ const SECTIONS = [
       {
         method: "POST",
         path: "/api/v1/billing/add-credits",
-        description: "Create a Stripe checkout session to add credits.",
+        description: "Create a Razorpay order to add credits.",
         body: `{
   "amount": 50,
-  "currency": "USD"
+  "currency": "INR"
 }`,
         response: `{
   "success": true,
   "data": {
-    "checkoutUrl": "https://checkout.stripe.com/..."
+    "orderId": "order_...",
+    "amount": 5000,
+    "currency": "INR",
+    "keyId": "rzp_..."
   }
 }`,
       },

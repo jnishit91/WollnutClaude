@@ -57,7 +57,7 @@ const FEATURES = [
     icon: CreditCard,
     title: "Simple Credit System",
     description:
-      "Add credits via Stripe. Auto-recharge when your balance runs low. Full billing transparency.",
+      "Add credits via Razorpay. Auto-recharge when your balance runs low. Full billing transparency.",
   },
 ];
 
@@ -103,7 +103,7 @@ const STEPS = [
   {
     step: "02",
     title: "Add Credits",
-    description: "Purchase credits via Stripe. Start with as little as $5.",
+    description: "Purchase credits via Razorpay. Start with as little as $5.",
   },
   {
     step: "03",

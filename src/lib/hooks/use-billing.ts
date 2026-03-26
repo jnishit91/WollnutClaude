@@ -47,9 +47,9 @@ export function useBalance() {
   });
 }
 
-export function useAddCredits() {
+export function useCreateOrder() {
   return useMutation({
-    mutationFn: async (params: { amount: number; currency?: "USD" | "INR" }) => {
+    mutationFn: async (params: { amount: number; currency?: "INR" | "USD" }) => {
       const res = await fetch(API_ROUTES.BILLING.ADD_CREDITS, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -57,7 +57,43 @@ export function useAddCredits() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error?.message || "Request failed");
-      return data.data as { checkoutUrl: string };
+      return data.data as {
+        orderId: string;
+        amount: number;
+        currency: string;
+        keyId: string;
+        prefill: { name: string; email: string };
+      };
+    },
+  });
+}
+
+export function useVerifyPayment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (params: {
+      razorpay_order_id: string;
+      razorpay_payment_id: string;
+      razorpay_signature: string;
+    }) => {
+      const res = await fetch("/api/v1/billing/verify-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(params),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error?.message || "Verification failed");
+      return data.data as {
+        verified: boolean;
+        amount: number;
+        newBalance: number;
+        paymentId: string;
+      };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["billing"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard-stats"] });
     },
   });
 }
@@ -100,7 +136,7 @@ interface Transaction {
   amount: number;
   balance: number;
   description: string;
-  stripePaymentId: string | null;
+  razorpayPaymentId: string | null;
   createdAt: string;
 }
 

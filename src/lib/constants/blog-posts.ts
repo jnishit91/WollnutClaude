@@ -31,7 +31,7 @@ The GPU cloud market has been dominated by providers that require long-term comm
 
 **One-Click Templates**: Pre-configured environments for PyTorch, TensorFlow, vLLM, ComfyUI, and more. Skip the hours of setup and start training immediately.
 
-**Credit-Based Wallet**: Top up your balance via Stripe and deploy instantly. No invoices, no purchase orders, no waiting. If your credits run out, instances auto-stop — no surprise bills.
+**Credit-Based Wallet**: Top up your balance via Razorpay and deploy instantly. No invoices, no purchase orders, no waiting. If your credits run out, instances auto-stop — no surprise bills.
 
 **Enterprise GPUs**: Access to NVIDIA B200, H200, and H100 GPUs with InfiniBand interconnect for distributed training. The same hardware powering frontier AI labs.
 

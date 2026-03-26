@@ -43,7 +43,7 @@ export const GET = withErrorHandler(async (req) => {
         amount: true,
         balance: true,
         description: true,
-        stripePaymentId: true,
+        razorpayPaymentId: true,
         createdAt: true,
       },
     }),

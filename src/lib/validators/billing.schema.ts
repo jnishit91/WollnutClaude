@@ -62,15 +62,6 @@ export const transactionQuerySchema = z.object({
 
 export type TransactionQueryInput = z.infer<typeof transactionQuerySchema>;
 
-/** Stripe webhook event validation */
-export const stripeWebhookSchema = z.object({
-  id: z.string(),
-  type: z.string(),
-  data: z.object({
-    object: z.record(z.unknown()),
-  }),
-});
-
 /** Admin credit adjustment */
 export const adminCreditAdjustSchema = z.object({
   amount: z.number().refine((val) => val !== 0, "Amount cannot be zero"),

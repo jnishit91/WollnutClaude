@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 const sections = [
   {
     title: "1. Information We Collect",
-    content: `We collect information you provide directly: name, email address, and payment information (processed by Stripe). We also collect usage data including instance creation/deletion events, login times, IP addresses, and API usage logs for security and billing purposes. We do not access or monitor the contents of your GPU instances.`,
+    content: `We collect information you provide directly: name, email address, and payment information (processed by Razorpay). We also collect usage data including instance creation/deletion events, login times, IP addresses, and API usage logs for security and billing purposes. We do not access or monitor the contents of your GPU instances.`,
   },
   {
     title: "2. How We Use Your Information",
@@ -17,7 +17,7 @@ const sections = [
   },
   {
     title: "4. Third-Party Services",
-    content: `We use the following third-party services: Stripe (payment processing — subject to Stripe's privacy policy), E2E Networks (GPU infrastructure — your instance data resides on their hardware), Google and GitHub (OAuth authentication — only profile information is shared), and analytics tools for aggregated usage metrics.`,
+    content: `We use the following third-party services: Razorpay (payment processing — subject to Razorpay's privacy policy), E2E Networks (GPU infrastructure — your instance data resides on their hardware), Google and GitHub (OAuth authentication — only profile information is shared), and analytics tools for aggregated usage metrics.`,
   },
   {
     title: "5. Instance Data",

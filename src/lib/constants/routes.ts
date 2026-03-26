@@ -63,6 +63,7 @@ export const API_ROUTES = {
     USAGE: "/api/v1/billing/usage",
     TRANSACTIONS: "/api/v1/billing/transactions",
     INVOICES: "/api/v1/billing/invoices",
+    VERIFY_PAYMENT: "/api/v1/billing/verify-payment",
     WEBHOOK: "/api/v1/billing/webhook",
   },
 
