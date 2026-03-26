@@ -79,6 +79,12 @@ export const API_ROUTES = {
     MARK_READ: (id: string) => `/api/v1/notifications/${id}/read`,
   },
 
+  // Real-time Events
+  EVENTS: {
+    STREAM: "/api/v1/events/stream",
+    INSTANCE_STATUS: "/api/v1/instances/status-stream",
+  },
+
   // Admin
   ADMIN: {
     USERS: "/api/v1/admin/users",

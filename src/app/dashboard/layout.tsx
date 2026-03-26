@@ -7,6 +7,9 @@ import { signOut } from "next-auth/react";
 import { useState } from "react";
 import { dashboardNav } from "@/config/nav";
 import { NotificationBell } from "@/components/dashboard/NotificationBell";
+import { RealtimeProvider } from "@/components/realtime/RealtimeProvider";
+import { ConnectionStatus } from "@/components/realtime/ConnectionStatus";
+import { useRealtime } from "@/components/realtime/RealtimeProvider";
 import { useBalance } from "@/lib/hooks/use-billing";
 import {
   LayoutDashboard,
@@ -150,11 +153,14 @@ function CreditsDisplay() {
   );
 }
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function LiveIndicator() {
+  const { connectionState } = useRealtime();
+  return (
+    <ConnectionStatus state={connectionState} className="hidden sm:inline-flex" />
+  );
+}
+
+function DashboardContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { data: session } = useSession();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -203,6 +209,9 @@ export default function DashboardLayout({
           </div>
 
           <div className="flex items-center gap-4">
+            {/* Live connection status */}
+            <LiveIndicator />
+
             {/* Credits */}
             <CreditsDisplay />
 
@@ -227,5 +236,17 @@ export default function DashboardLayout({
         </main>
       </div>
     </div>
+  );
+}
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <RealtimeProvider>
+      <DashboardContent>{children}</DashboardContent>
+    </RealtimeProvider>
   );
 }

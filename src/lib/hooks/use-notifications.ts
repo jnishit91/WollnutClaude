@@ -25,7 +25,7 @@ export function useNotifications() {
   return useQuery<Notification[]>({
     queryKey: ["notifications"],
     queryFn: () => fetchJson(API_ROUTES.NOTIFICATIONS.LIST),
-    refetchInterval: 30_000,
+    refetchInterval: 60_000, // Slow poll — SSE handles real-time invalidation
   });
 }
 
@@ -38,7 +38,7 @@ export function useUnreadCount() {
       );
       return data.length;
     },
-    refetchInterval: 30_000,
+    refetchInterval: 60_000, // Slow poll — SSE handles real-time invalidation
   });
 }
 
