@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
@@ -16,11 +17,15 @@ export function Navbar() {
     <header className="sticky top-0 z-50 border-b border-surface-800/50 bg-surface-950/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white">
-            W
-          </div>
-          <span className="text-lg font-bold text-white">Wollnut Labs</span>
+        <Link href="/" className="flex items-center gap-2">
+          <Image
+            src="/images/logo-wollnut.png"
+            alt="Wollnut Labs"
+            width={220}
+            height={70}
+            className="h-12 w-auto"
+            priority
+          />
         </Link>
 
         {/* Desktop nav */}

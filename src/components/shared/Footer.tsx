@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { footerNav } from "@/config/nav";
 
 export function Footer() {
@@ -8,11 +9,14 @@ export function Footer() {
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div>
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white">
-                W
-              </div>
-              <span className="text-lg font-bold text-white">Wollnut Labs</span>
+            <Link href="/" className="flex items-center gap-2">
+              <Image
+                src="/images/logo.png"
+                alt="Wollnut Labs"
+                width={160}
+                height={50}
+                className="h-8 w-auto"
+              />
             </Link>
             <p className="mt-4 text-sm leading-relaxed text-surface-400">
               Enterprise GPU cloud for AI/ML workloads. Deploy H100, H200, and

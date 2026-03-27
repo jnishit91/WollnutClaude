@@ -3,6 +3,7 @@
 
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Authentication",
@@ -22,10 +23,14 @@ export default function AuthLayout({
         {/* Logo */}
         <div className="flex flex-col items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 font-bold text-white">
-              W
-            </div>
-            <span className="text-xl font-bold text-white">Wollnut Labs</span>
+            <Image
+              src="/images/logo.png"
+              alt="Wollnut Labs"
+              width={200}
+              height={63}
+              className="h-10 w-auto"
+              priority
+            />
           </Link>
           <p className="text-sm text-surface-500">
             Enterprise GPU Cloud for AI/ML

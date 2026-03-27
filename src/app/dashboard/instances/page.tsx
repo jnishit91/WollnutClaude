@@ -10,7 +10,8 @@ import { ConfirmModal } from "@/components/shared/ConfirmModal";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { SkeletonRow } from "@/components/shared/Skeleton";
 import type { InstanceStatus } from "@/types/instance.types";
-import { Server, Plus, MoreVertical } from "lucide-react";
+import { Server, Plus, MoreVertical, Zap, ArrowRight, Monitor, KeyRound, Rocket } from "lucide-react";
+import { motion } from "framer-motion";
 
 function formatUptime(startedAt: string | null, status: string): string {
   if (!startedAt || status !== "RUNNING") return "-";
@@ -166,13 +167,150 @@ export default function InstancesPage() {
             ))}
           </div>
         ) : !instances || instances.length === 0 ? (
-          <EmptyState
-            icon={<Server className="h-12 w-12" />}
-            title="No instances yet"
-            description="Launch your first GPU instance to get started with AI/ML workloads."
-            actionLabel="Launch your first GPU instance"
-            actionHref="/dashboard/instances/new"
-          />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="space-y-8 py-8"
+          >
+            {/* Hero empty state */}
+            <div className="flex flex-col items-center text-center">
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.1, duration: 0.4 }}
+                className="relative"
+              >
+                <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-600/20 to-accent-green/10 ring-1 ring-surface-800">
+                  <Server className="h-10 w-10 text-brand-400" />
+                </div>
+                <div className="absolute -bottom-1 -right-1 flex h-8 w-8 items-center justify-center rounded-full bg-surface-900 ring-2 ring-surface-800">
+                  <Zap className="h-4 w-4 text-accent-amber" />
+                </div>
+              </motion.div>
+
+              <h2 className="mt-6 text-xl font-bold text-white">
+                No instances yet
+              </h2>
+              <p className="mt-2 max-w-md text-sm text-surface-400">
+                Launch your first GPU instance in under 60 seconds. Choose from
+                the latest NVIDIA GPUs and start training or inferencing right
+                away.
+              </p>
+              <Link
+                href="/dashboard/instances/new"
+                className="mt-6 inline-flex items-center gap-2 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-700"
+              >
+                <Plus className="h-4 w-4" />
+                Launch Your First Instance
+              </Link>
+            </div>
+
+            {/* Quick launch GPUs */}
+            <div>
+              <h3 className="mb-3 text-center text-sm font-semibold text-surface-300">
+                Popular Configurations
+              </h3>
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                {[
+                  {
+                    gpu: "H100",
+                    spec: "80GB SXM · 1x GPU",
+                    price: "$2.49/hr",
+                    color: "text-accent-green",
+                    bg: "bg-accent-green/10",
+                    borderHover: "hover:border-accent-green/40",
+                  },
+                  {
+                    gpu: "H200",
+                    spec: "141GB SXM · 1x GPU",
+                    price: "$3.99/hr",
+                    color: "text-brand-400",
+                    bg: "bg-brand-400/10",
+                    borderHover: "hover:border-brand-400/40",
+                  },
+                  {
+                    gpu: "B200",
+                    spec: "192GB SXM · 1x GPU",
+                    price: "$4.99/hr",
+                    color: "text-accent-purple",
+                    bg: "bg-accent-purple/10",
+                    borderHover: "hover:border-accent-purple/40",
+                  },
+                ].map((cfg) => (
+                  <Link
+                    key={cfg.gpu}
+                    href={`/dashboard/instances/new?gpu=${cfg.gpu}`}
+                    className={`group flex items-center gap-4 rounded-xl border border-surface-800 bg-surface-900 p-4 transition-all ${cfg.borderHover}`}
+                  >
+                    <div className={`rounded-lg p-3 ${cfg.bg}`}>
+                      <Zap className={`h-5 w-5 ${cfg.color}`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-white">
+                        NVIDIA {cfg.gpu}
+                      </p>
+                      <p className="text-xs text-surface-500">{cfg.spec}</p>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-xs font-medium text-surface-300">
+                        {cfg.price}
+                      </p>
+                      <ArrowRight className="ml-auto mt-1 h-3.5 w-3.5 text-surface-600 transition-colors group-hover:text-brand-400" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* How it works */}
+            <div className="rounded-xl border border-surface-800 bg-surface-900 p-6">
+              <h3 className="text-sm font-semibold text-white">
+                How it works
+              </h3>
+              <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-3">
+                {[
+                  {
+                    icon: KeyRound,
+                    title: "1. Add your SSH key",
+                    desc: "Upload your public key in Settings for secure access to your instances.",
+                    color: "text-brand-400",
+                    bg: "bg-brand-400/10",
+                  },
+                  {
+                    icon: Monitor,
+                    title: "2. Pick a GPU",
+                    desc: "Select from H100, H200, B200, and more. Choose the right fit for your workload.",
+                    color: "text-accent-amber",
+                    bg: "bg-accent-amber/10",
+                  },
+                  {
+                    icon: Rocket,
+                    title: "3. Launch & connect",
+                    desc: "Your instance spins up in seconds. SSH in and start working immediately.",
+                    color: "text-accent-green",
+                    bg: "bg-accent-green/10",
+                  },
+                ].map((step) => (
+                  <div key={step.title} className="flex gap-3">
+                    <div
+                      className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg ${step.bg}`}
+                    >
+                      <step.icon className={`h-5 w-5 ${step.color}`} />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-white">
+                        {step.title}
+                      </p>
+                      <p className="mt-0.5 text-xs text-surface-500">
+                        {step.desc}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
         ) : (
           <div className="space-y-2">
             {/* Header */}

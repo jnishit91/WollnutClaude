@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { signOut } from "next-auth/react";
@@ -45,10 +46,16 @@ function SidebarContent({
       {/* Logo */}
       <div className="flex h-16 items-center gap-2 border-b border-surface-800 px-6">
         <Link href="/admin" className="flex items-center gap-2" onClick={onLinkClick}>
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent-red text-sm font-bold text-white">
-            A
-          </div>
-          <span className="text-lg font-bold text-white">Admin</span>
+          <Image
+            src="/images/logo.png"
+            alt="Wollnut Labs"
+            width={120}
+            height={38}
+            className="h-6 w-auto"
+          />
+          <span className="rounded bg-accent-red/20 px-1.5 py-0.5 text-[10px] font-bold text-accent-red">
+            ADMIN
+          </span>
         </Link>
       </div>
 

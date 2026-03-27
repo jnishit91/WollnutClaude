@@ -43,18 +43,36 @@ export const dashboardNav: NavSection[] = [
         href: "/dashboard/instances/new",
         icon: "plus-circle",
       },
+      { title: "Templates", href: "/dashboard/templates", icon: "layers" },
+      { title: "Models", href: "/dashboard/models", icon: "brain" },
+    ],
+  },
+  {
+    title: "Storage",
+    items: [
+      { title: "Volumes", href: "/dashboard/volumes", icon: "hard-drive" },
     ],
   },
   {
     title: "Account",
     items: [
       { title: "Billing", href: "/dashboard/billing", icon: "credit-card" },
+      { title: "SSH Keys", href: "/dashboard/ssh-keys", icon: "key" },
+      { title: "API Keys", href: "/dashboard/api-keys", icon: "code" },
+      { title: "Teams", href: "/dashboard/teams", icon: "users" },
       { title: "Settings", href: "/dashboard/settings", icon: "settings" },
       {
         title: "Notifications",
         href: "/dashboard/notifications",
         icon: "bell",
       },
+    ],
+  },
+  {
+    title: "Resources",
+    items: [
+      { title: "Quick Start", href: "/dashboard/quickstart", icon: "rocket" },
+      { title: "API Docs", href: "/docs", icon: "book-open", external: true },
     ],
   },
 ];

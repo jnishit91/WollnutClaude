@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { signOut } from "next-auth/react";
@@ -22,6 +23,14 @@ import {
   X,
   LogOut,
   ChevronRight,
+  Layers,
+  Brain,
+  HardDrive,
+  Key,
+  Code,
+  Users,
+  Rocket,
+  BookOpen,
 } from "lucide-react";
 
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -31,6 +40,14 @@ const ICON_MAP: Record<string, React.ElementType> = {
   "credit-card": CreditCard,
   settings: Settings,
   bell: Bell,
+  layers: Layers,
+  brain: Brain,
+  "hard-drive": HardDrive,
+  key: Key,
+  code: Code,
+  users: Users,
+  rocket: Rocket,
+  "book-open": BookOpen,
 };
 
 function SidebarContent({
@@ -45,10 +62,13 @@ function SidebarContent({
       {/* Logo */}
       <div className="flex h-16 items-center gap-2 border-b border-surface-800 px-6">
         <Link href="/" className="flex items-center gap-2" onClick={onLinkClick}>
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white">
-            W
-          </div>
-          <span className="text-lg font-bold text-white">Wollnut</span>
+          <Image
+            src="/images/logo.png"
+            alt="Wollnut Labs"
+            width={140}
+            height={44}
+            className="h-7 w-auto"
+          />
         </Link>
       </div>
 
