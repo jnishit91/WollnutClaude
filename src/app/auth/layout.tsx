@@ -24,7 +24,7 @@ export default function AuthLayout({
         <div className="flex flex-col items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
             <Image
-              src="/images/logo.png"
+              src="/images/logo-wollnut.png"
               alt="Wollnut Labs"
               width={200}
               height={63}
