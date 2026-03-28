@@ -226,7 +226,7 @@ export default function QuickStartPage() {
             <CopyButton text={CODE_EXAMPLES[activeExample]?.code ?? ''} />
           </div>
           <pre className="mt-2 overflow-x-auto text-xs leading-relaxed text-surface-300">
-            <code>{CODE_EXAMPLES[activeExample].code}</code>
+            <code>{CODE_EXAMPLES[activeExample]?.code}</code>
           </pre>
         </div>
       </div>
