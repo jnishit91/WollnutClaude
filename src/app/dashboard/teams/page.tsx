@@ -238,7 +238,7 @@ export default function TeamsPage() {
             >
               <div className="flex items-center gap-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-600 text-sm font-bold text-white">
-                  {member.name[0].toUpperCase()}
+                  {member.name?.[0]?.toUpperCase()}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
@@ -246,12 +246,12 @@ export default function TeamsPage() {
                       {member.name}
                     </span>
                     <span
-                      className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${roleStyle.bg} ${roleStyle.text}`}
+                      className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${roleStyle?.bg} ${roleStyle?.text}`}
                     >
                       {member.role === "owner" && (
                         <Crown className="mr-0.5 inline h-3 w-3" />
                       )}
-                      {roleStyle.label}
+                      {roleStyle?.label}
                     </span>
                   </div>
                   <p className="mt-0.5 text-xs text-surface-500">

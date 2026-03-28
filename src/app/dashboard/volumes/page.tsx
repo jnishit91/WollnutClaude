@@ -90,7 +90,7 @@ function CreateVolumeModal({
   const overlayRef = useRef<HTMLDivElement>(null);
   const [name, setName] = useState("");
   const [sizeGb, setSizeGb] = useState(100);
-  const [region, setRegion] = useState(REGIONS[0].value);
+  const [region, setRegion] = useState(REGIONS[0]?.value ?? "");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -118,7 +118,7 @@ function CreateVolumeModal({
       toast.success("Volume created");
       setName("");
       setSizeGb(100);
-      setRegion(REGIONS[0].value);
+      setRegion(REGIONS[0]?.value ?? "");
       onCreated();
       onClose();
     } catch (err: unknown) {
