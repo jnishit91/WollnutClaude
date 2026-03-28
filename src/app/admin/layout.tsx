@@ -47,11 +47,11 @@ function SidebarContent({
       <div className="flex h-16 items-center gap-2 border-b border-surface-800 px-6">
         <Link href="/admin" className="flex items-center gap-2" onClick={onLinkClick}>
           <Image
-            src="/images/logo.png"
+            src="/images/logo-wollnut.png"
             alt="Wollnut Labs"
-            width={120}
-            height={38}
-            className="h-6 w-auto"
+            width={160}
+            height={50}
+            className="h-8 w-auto"
           />
           <span className="rounded bg-accent-red/20 px-1.5 py-0.5 text-[10px] font-bold text-accent-red">
             ADMIN

@@ -11,11 +11,11 @@ export function Footer() {
           <div>
             <Link href="/" className="flex items-center gap-2">
               <Image
-                src="/images/logo.png"
+                src="/images/logo-wollnut.png"
                 alt="Wollnut Labs"
-                width={160}
-                height={50}
-                className="h-8 w-auto"
+                width={220}
+                height={70}
+                className="h-10 w-auto"
               />
             </Link>
             <p className="mt-4 text-sm leading-relaxed text-surface-400">

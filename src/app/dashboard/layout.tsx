@@ -63,11 +63,11 @@ function SidebarContent({
       <div className="flex h-16 items-center gap-2 border-b border-surface-800 px-6">
         <Link href="/" className="flex items-center gap-2" onClick={onLinkClick}>
           <Image
-            src="/images/logo.png"
+            src="/images/logo-wollnut.png"
             alt="Wollnut Labs"
-            width={140}
-            height={44}
-            className="h-7 w-auto"
+            width={220}
+            height={70}
+            className="h-9 w-auto"
           />
         </Link>
       </div>
