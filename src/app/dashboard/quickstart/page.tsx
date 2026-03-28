@@ -221,9 +221,9 @@ export default function QuickStartPage() {
         <div className="mt-3 rounded-xl border border-surface-700 bg-surface-950 p-4">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-medium uppercase tracking-wider text-surface-500">
-              {CODE_EXAMPLES[activeExample].language}
+              {CODE_EXAMPLES[activeExample]?.language}
             </span>
-            <CopyButton text={CODE_EXAMPLES[activeExample].code} />
+            <CopyButton text={CODE_EXAMPLES[activeExample]?.code ?? ''} />
           </div>
           <pre className="mt-2 overflow-x-auto text-xs leading-relaxed text-surface-300">
             <code>{CODE_EXAMPLES[activeExample].code}</code>
