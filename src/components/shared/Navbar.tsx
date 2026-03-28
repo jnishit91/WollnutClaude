@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { mainNav } from "@/config/nav";
-import { Menu, X, ArrowRight } from "lucide-react";
+import { Menu, X, ArrowRight, Terminal } from "lucide-react";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -53,8 +53,15 @@ export function Navbar() {
           })}
         </nav>
 
-        {/* Auth buttons */}
+        {/* CLI + Auth buttons */}
         <div className="hidden items-center gap-3 lg:flex">
+          <Link
+            href="/developers"
+            className="flex items-center gap-1.5 rounded-lg border border-surface-700 bg-surface-800/50 px-3 py-2 text-sm font-medium text-surface-300 transition-colors hover:border-surface-600 hover:text-white"
+          >
+            <Terminal className="h-4 w-4" />
+            CLI
+          </Link>
           {session ? (
             <Link
               href="/dashboard"
@@ -113,6 +120,15 @@ export function Navbar() {
                 )}
               </Link>
             ))}
+
+            <Link
+              href="/developers"
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-surface-300 hover:bg-surface-800 hover:text-white"
+            >
+              <Terminal className="h-4 w-4" />
+              CLI
+            </Link>
 
             <div className="border-t border-surface-800 pt-4">
               {session ? (
