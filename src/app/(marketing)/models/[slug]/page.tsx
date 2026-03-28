@@ -21,9 +21,10 @@ import { Spinner } from "@/components/shared/Spinner";
 export default function ModelDetailPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string }> | { slug: string };
 }) {
-  const { slug } = use(params);
+  const resolvedParams = params instanceof Promise ? use(params) : params;
+  const slug = resolvedParams.slug;
   const { data: model, isLoading } = useModel(slug);
 
   if (isLoading) {

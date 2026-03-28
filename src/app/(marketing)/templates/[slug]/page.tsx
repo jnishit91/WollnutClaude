@@ -19,9 +19,10 @@ import { Spinner } from "@/components/shared/Spinner";
 export default function TemplateDetailPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string }> | { slug: string };
 }) {
-  const { slug } = use(params);
+  const resolvedParams = params instanceof Promise ? use(params) : params;
+  const slug = resolvedParams.slug;
   const { data: template, isLoading } = useTemplate(slug);
 
   if (isLoading) {

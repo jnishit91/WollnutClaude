@@ -10,9 +10,10 @@ import { BLOG_POSTS } from "@/lib/constants/blog-posts";
 export default function BlogPostPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string }> | { slug: string };
 }) {
-  const { slug } = use(params);
+  const resolvedParams = params instanceof Promise ? use(params) : params;
+  const slug = resolvedParams.slug;
   const post = BLOG_POSTS.find((p) => p.slug === slug);
 
   if (!post) {
