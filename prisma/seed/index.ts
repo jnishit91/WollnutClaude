@@ -1,122 +1,613 @@
-// prisma/seed/index.ts
-// Database seed runner — populates GPU plans, templates, and AI models
-
 import { PrismaClient } from "@prisma/client";
-import { GPU_PLANS_SEED } from "./gpu-plans";
-import { TEMPLATES_SEED } from "./templates";
-import { AI_MODELS_SEED } from "./models";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Seeding database...\n");
+  console.log("🌱 Seeding database...");
 
-  // ── GPU Plans ────────────────────────────
-  console.log("📊 Seeding GPU plans...");
-  let planCount = 0;
-  for (const plan of GPU_PLANS_SEED) {
-    await prisma.gPUPlan.upsert({
-      where: { e2ePlanId: plan.e2ePlanId },
-      update: {
-        gpuName: plan.gpuName,
-        gpuShortName: plan.gpuShortName,
-        vram: plan.vram,
-        vcpus: plan.vcpus,
-        ram: plan.ram,
-        storage: plan.storage,
-        infiniband: plan.infiniband,
-        e2ePricePerHour: plan.e2ePricePerHour,
-        availableCount: plan.availableCount,
-        sortOrder: plan.sortOrder,
-        category: plan.category,
-        // NOTE: wollnutPricePerHour is NOT overwritten on re-seed
-        // to preserve admin pricing changes
-      },
-      create: plan,
-    });
-    planCount++;
-  }
-  console.log(`   ✅ ${planCount} GPU plans upserted`);
-
-  // ── Templates ────────────────────────────
-  console.log("🧩 Seeding templates...");
-  let templateCount = 0;
-  for (const template of TEMPLATES_SEED) {
-    await prisma.template.upsert({
-      where: { slug: template.slug },
-      update: {
-        name: template.name,
-        description: template.description,
-        category: template.category,
-        e2eImageId: template.e2eImageId,
-        icon: template.icon,
-        tags: template.tags,
-        includedPackages: template.includedPackages,
-        recommendedGpu: template.recommendedGpu,
-        minVram: template.minVram,
-        featured: template.featured,
-        sortOrder: template.sortOrder,
-      },
-      create: template,
-    });
-    templateCount++;
-  }
-  console.log(`   ✅ ${templateCount} templates upserted`);
-
-  // ── AI Models ────────────────────────────
-  console.log("🤖 Seeding AI models...");
-  let modelCount = 0;
-  for (const model of AI_MODELS_SEED) {
-    await prisma.aIModel.upsert({
-      where: { slug: model.slug },
-      update: {
-        name: model.name,
-        provider: model.provider,
-        category: model.category,
-        description: model.description,
-        parameters: model.parameters,
-        contextLength: model.contextLength,
-        vramRequired: model.vramRequired,
-        recommendedGpu: model.recommendedGpu,
-        templateSlug: model.templateSlug,
-        huggingFaceId: model.huggingFaceId,
-        licenseType: model.licenseType,
-        featured: model.featured,
-        sortOrder: model.sortOrder,
-      },
-      create: model,
-    });
-    modelCount++;
-  }
-  console.log(`   ✅ ${modelCount} AI models upserted`);
-
-  // ── System settings ──────────────────────
-  console.log("⚙️  Seeding system settings...");
-  const defaultSettings = [
-    { key: "new_user_credits", value: 5.0 },
-    { key: "low_credits_threshold", value: 2.0 },
-    { key: "min_credits_hours", value: 1 },
-    { key: "billing_currency", value: "USD" },
-    { key: "platform_status", value: "operational" },
+  // ── GPU Plans ──────────────────────────────────────────
+  const gpuPlans = [
+    {
+      e2ePlanId: "gpu-h200-sxm",
+      gpuName: "NVIDIA H200 SXM",
+      gpuShortName: "H200",
+      vram: "141GB HBM3e",
+      vcpus: 16,
+      ram: "200GB",
+      storage: "500GB NVMe",
+      infiniband: "400 Gb/s",
+      e2ePricePerHour: 3.20,
+      wollnutPricePerHour: 3.80,
+      wollnutPricePerMinute: 0.0633,
+      available: true,
+      availableCount: "1x, 2x, 4x, 8x",
+      sortOrder: 1,
+      category: "gpu",
+    },
+    {
+      e2ePlanId: "gpu-h100-sxm",
+      gpuName: "NVIDIA H100 SXM",
+      gpuShortName: "H100",
+      vram: "80GB HBM3",
+      vcpus: 16,
+      ram: "200GB",
+      storage: "500GB NVMe",
+      infiniband: "400 Gb/s",
+      e2ePricePerHour: 2.20,
+      wollnutPricePerHour: 2.69,
+      wollnutPricePerMinute: 0.0448,
+      available: true,
+      availableCount: "1x, 2x, 4x, 8x",
+      sortOrder: 2,
+      category: "gpu",
+    },
+    {
+      e2ePlanId: "gpu-a100-80gb",
+      gpuName: "NVIDIA A100 80GB",
+      gpuShortName: "A100-80GB",
+      vram: "80GB HBM2e",
+      vcpus: 16,
+      ram: "112GB",
+      storage: "500GB NVMe",
+      infiniband: null,
+      e2ePricePerHour: 1.20,
+      wollnutPricePerHour: 1.49,
+      wollnutPricePerMinute: 0.0248,
+      available: true,
+      availableCount: "1x, 2x, 4x",
+      sortOrder: 3,
+      category: "gpu",
+    },
+    {
+      e2ePlanId: "gpu-a100-40gb",
+      gpuName: "NVIDIA A100 40GB",
+      gpuShortName: "A100-40GB",
+      vram: "40GB HBM2e",
+      vcpus: 16,
+      ram: "112GB",
+      storage: "500GB NVMe",
+      infiniband: null,
+      e2ePricePerHour: 1.00,
+      wollnutPricePerHour: 1.29,
+      wollnutPricePerMinute: 0.0215,
+      available: true,
+      availableCount: "1x, 2x, 4x",
+      sortOrder: 4,
+      category: "gpu",
+    },
+    {
+      e2ePlanId: "gpu-rtx6000-ada",
+      gpuName: "NVIDIA RTX 6000 Ada",
+      gpuShortName: "RTX 6000 Ada",
+      vram: "48GB GDDR6",
+      vcpus: 32,
+      ram: "128GB",
+      storage: "500GB NVMe",
+      infiniband: null,
+      e2ePricePerHour: 0.80,
+      wollnutPricePerHour: 0.99,
+      wollnutPricePerMinute: 0.0165,
+      available: true,
+      availableCount: "1x",
+      sortOrder: 5,
+      category: "gpu",
+    },
+    {
+      e2ePlanId: "gpu-a6000",
+      gpuName: "NVIDIA A6000",
+      gpuShortName: "A6000",
+      vram: "48GB GDDR6X",
+      vcpus: 7,
+      ram: "32GB",
+      storage: "200GB NVMe",
+      infiniband: null,
+      e2ePricePerHour: 0.60,
+      wollnutPricePerHour: 0.79,
+      wollnutPricePerMinute: 0.0132,
+      available: true,
+      availableCount: "1x",
+      sortOrder: 6,
+      category: "gpu",
+    },
+    {
+      e2ePlanId: "gpu-l4",
+      gpuName: "NVIDIA L4",
+      gpuShortName: "L4",
+      vram: "24GB GDDR6",
+      vcpus: 32,
+      ram: "124GB",
+      storage: "200GB NVMe",
+      infiniband: null,
+      e2ePricePerHour: 0.35,
+      wollnutPricePerHour: 0.44,
+      wollnutPricePerMinute: 0.0073,
+      available: true,
+      availableCount: "1x",
+      sortOrder: 7,
+      category: "gpu",
+    },
   ];
 
-  for (const setting of defaultSettings) {
-    await prisma.systemSetting.upsert({
-      where: { key: setting.key },
-      update: {},
-      create: { key: setting.key, value: setting.value },
+  for (const plan of gpuPlans) {
+    await prisma.gPUPlan.upsert({
+      where: { e2ePlanId: plan.e2ePlanId },
+      update: plan,
+      create: plan,
     });
   }
-  console.log(`   ✅ ${defaultSettings.length} system settings initialized`);
+  console.log(`✅ Seeded ${gpuPlans.length} GPU plans`);
 
-  console.log("\n🎉 Seed completed successfully!");
+  // ── Templates ──────────────────────────────────────────
+  const templates = [
+    {
+      name: "PyTorch 2.4 + CUDA 12.4",
+      slug: "pytorch",
+      description:
+        "Production-ready PyTorch environment with CUDA 12.4, cuDNN 9, and pre-installed libraries including Transformers, DeepSpeed, PEFT, Accelerate, and bitsandbytes.",
+      category: "General ML",
+      e2eImageId: "pytorch-2.4",
+      icon: "🔥",
+      tags: ["pytorch", "cuda", "deep-learning", "transformers"],
+      includedPackages: [
+        "PyTorch 2.4",
+        "CUDA 12.4",
+        "cuDNN 9",
+        "Transformers",
+        "DeepSpeed",
+        "PEFT",
+        "Accelerate",
+        "bitsandbytes",
+      ],
+      recommendedGpu: "Any GPU",
+      minVram: "16GB",
+      featured: true,
+      sortOrder: 1,
+    },
+    {
+      name: "TensorFlow 2.16 + CUDA 12.3",
+      slug: "tensorflow",
+      description:
+        "Full TensorFlow setup with Keras 3, TensorBoard, TF-Serving, and CUDA acceleration for training and deploying ML models at scale.",
+      category: "General ML",
+      e2eImageId: "tensorflow-2.16",
+      icon: "🧠",
+      tags: ["tensorflow", "keras", "cuda", "ml"],
+      includedPackages: [
+        "TensorFlow 2.16",
+        "Keras 3",
+        "CUDA 12.3",
+        "TensorBoard",
+        "TF-Serving",
+      ],
+      recommendedGpu: "Any GPU",
+      minVram: "16GB",
+      featured: true,
+      sortOrder: 2,
+    },
+    {
+      name: "Axolotl — LLM Fine-tuning",
+      slug: "axolotl",
+      description:
+        "Streamlined LLM fine-tuning toolkit with LoRA, QLoRA, and full fine-tuning support. Includes config-driven training with DeepSpeed and Flash Attention.",
+      category: "LLM Training",
+      e2eImageId: "axolotl-latest",
+      icon: "🦎",
+      tags: ["llm", "fine-tuning", "lora", "qlora", "axolotl"],
+      includedPackages: [
+        "Axolotl",
+        "PyTorch 2.4",
+        "Flash Attention 2",
+        "DeepSpeed",
+        "PEFT",
+        "Transformers",
+        "bitsandbytes",
+      ],
+      recommendedGpu: "A100 or H100",
+      minVram: "40GB",
+      featured: true,
+      sortOrder: 3,
+    },
+    {
+      name: "vLLM — Inference Server",
+      slug: "vllm",
+      description:
+        "High-throughput LLM serving with PagedAttention, continuous batching, and OpenAI-compatible API. Deploy Llama, Mistral, Qwen, and more.",
+      category: "LLM Inference",
+      e2eImageId: "vllm-latest",
+      icon: "⚡",
+      tags: ["vllm", "inference", "serving", "llm", "api"],
+      includedPackages: [
+        "vLLM",
+        "PyTorch 2.4",
+        "CUDA 12.4",
+        "Ray",
+        "OpenAI API Server",
+      ],
+      recommendedGpu: "A100 or H100",
+      minVram: "40GB",
+      featured: true,
+      sortOrder: 4,
+    },
+    {
+      name: "ComfyUI — Image Generation",
+      slug: "comfyui",
+      description:
+        "Node-based Stable Diffusion interface for building complex image generation workflows. Supports SDXL, SD 3, Flux, ControlNet, and custom pipelines.",
+      category: "Image Generation",
+      e2eImageId: "comfyui-latest",
+      icon: "🎨",
+      tags: ["comfyui", "stable-diffusion", "image-gen", "sdxl"],
+      includedPackages: [
+        "ComfyUI",
+        "SDXL Models",
+        "ControlNet",
+        "IP-Adapter",
+        "Custom Node Manager",
+      ],
+      recommendedGpu: "RTX 6000 Ada or A6000",
+      minVram: "24GB",
+      featured: true,
+      sortOrder: 5,
+    },
+    {
+      name: "Automatic1111 — Stable Diffusion",
+      slug: "automatic1111",
+      description:
+        "Feature-rich Stable Diffusion web UI with txt2img, img2img, inpainting, extensions, and model management for image generation workflows.",
+      category: "Image Generation",
+      e2eImageId: "auto1111-latest",
+      icon: "🖼️",
+      tags: ["automatic1111", "stable-diffusion", "webui", "image-gen"],
+      includedPackages: [
+        "Automatic1111 WebUI",
+        "SD 1.5 + SDXL",
+        "ControlNet",
+        "After Detailer",
+        "DreamBooth",
+      ],
+      recommendedGpu: "A6000 or RTX 6000 Ada",
+      minVram: "24GB",
+      featured: false,
+      sortOrder: 6,
+    },
+    {
+      name: "Ollama — Local LLMs",
+      slug: "ollama",
+      description:
+        "Run open-source LLMs locally with a simple API. Pre-configured for Llama 3, Mistral, Gemma, Phi-3, and Qwen with automatic model management.",
+      category: "LLM Inference",
+      e2eImageId: "ollama-latest",
+      icon: "🦙",
+      tags: ["ollama", "llm", "inference", "local", "api"],
+      includedPackages: [
+        "Ollama",
+        "Open WebUI",
+        "CUDA 12.4",
+        "Model Library",
+      ],
+      recommendedGpu: "L4 or A6000",
+      minVram: "24GB",
+      featured: false,
+      sortOrder: 7,
+    },
+    {
+      name: "Kohya — Model Training",
+      slug: "kohya",
+      description:
+        "GUI-based training toolkit for Stable Diffusion models including DreamBooth, LoRA, and Textual Inversion with configurable training parameters.",
+      category: "Image Generation",
+      e2eImageId: "kohya-latest",
+      icon: "🎯",
+      tags: ["kohya", "dreambooth", "lora", "training", "stable-diffusion"],
+      includedPackages: [
+        "Kohya SS GUI",
+        "PyTorch 2.4",
+        "CUDA 12.4",
+        "xFormers",
+        "Prodigy Optimizer",
+      ],
+      recommendedGpu: "A6000 or A100",
+      minVram: "24GB",
+      featured: false,
+      sortOrder: 8,
+    },
+    {
+      name: "Fooocus — Easy Image Gen",
+      slug: "fooocus",
+      description:
+        "Simplified text-to-image generation with minimal prompt engineering. Built on SDXL with automatic quality enhancements and style presets.",
+      category: "Image Generation",
+      e2eImageId: "fooocus-latest",
+      icon: "✨",
+      tags: ["fooocus", "image-gen", "sdxl", "text-to-image"],
+      includedPackages: [
+        "Fooocus",
+        "SDXL Base + Refiner",
+        "Style Library",
+        "Inpaint",
+      ],
+      recommendedGpu: "L4 or A6000",
+      minVram: "16GB",
+      featured: false,
+      sortOrder: 9,
+    },
+    {
+      name: "FastAPI + LangChain",
+      slug: "fastapi-langchain",
+      description:
+        "Build and deploy AI-powered APIs with FastAPI and LangChain. Includes vector stores, RAG pipeline tools, and OpenAI-compatible endpoints.",
+      category: "AI Development",
+      e2eImageId: "fastapi-langchain",
+      icon: "🔗",
+      tags: ["fastapi", "langchain", "rag", "api", "python"],
+      includedPackages: [
+        "FastAPI",
+        "LangChain",
+        "ChromaDB",
+        "FAISS",
+        "Sentence Transformers",
+        "Uvicorn",
+      ],
+      recommendedGpu: "L4 or A6000",
+      minVram: "16GB",
+      featured: false,
+      sortOrder: 10,
+    },
+    {
+      name: "JAX + Flax",
+      slug: "jax",
+      description:
+        "High-performance ML framework with XLA compilation, automatic differentiation, and Flax neural network library for research-grade training.",
+      category: "General ML",
+      e2eImageId: "jax-latest",
+      icon: "🧮",
+      tags: ["jax", "flax", "xla", "tpu", "research"],
+      includedPackages: [
+        "JAX",
+        "Flax",
+        "Optax",
+        "Orbax",
+        "CUDA 12.4",
+      ],
+      recommendedGpu: "Any GPU",
+      minVram: "16GB",
+      featured: false,
+      sortOrder: 11,
+    },
+  ];
+
+  for (const tpl of templates) {
+    await prisma.template.upsert({
+      where: { slug: tpl.slug },
+      update: tpl,
+      create: tpl,
+    });
+  }
+  console.log(`✅ Seeded ${templates.length} templates`);
+
+  // ── AI Models ──────────────────────────────────────────
+  const models = [
+    {
+      name: "Llama 3.1 405B",
+      slug: "llama-3-1-405b",
+      provider: "Meta",
+      category: "Text Generation",
+      description:
+        "Meta's largest open-source LLM with 405B parameters. State-of-the-art performance on reasoning, coding, and multilingual tasks with 128K context window.",
+      parameters: "405B",
+      contextLength: "128K",
+      vramRequired: "640GB (8x H100)",
+      recommendedGpu: "H100 8x or H200 8x",
+      templateSlug: "vllm",
+      huggingFaceId: "meta-llama/Llama-3.1-405B-Instruct",
+      licenseType: "Llama 3.1 Community",
+      featured: true,
+      sortOrder: 1,
+    },
+    {
+      name: "Llama 3.1 70B",
+      slug: "llama-3-1-70b",
+      provider: "Meta",
+      category: "Text Generation",
+      description:
+        "High-performance 70B parameter model excelling at complex reasoning, coding assistance, and instruction following with 128K context support.",
+      parameters: "70B",
+      contextLength: "128K",
+      vramRequired: "140GB (2x A100-80GB)",
+      recommendedGpu: "A100-80GB 2x or H100 1x",
+      templateSlug: "vllm",
+      huggingFaceId: "meta-llama/Llama-3.1-70B-Instruct",
+      licenseType: "Llama 3.1 Community",
+      featured: true,
+      sortOrder: 2,
+    },
+    {
+      name: "Llama 3.1 8B",
+      slug: "llama-3-1-8b",
+      provider: "Meta",
+      category: "Text Generation",
+      description:
+        "Efficient 8B parameter model perfect for fine-tuning, edge deployment, and cost-effective inference. Punches above its weight class on benchmarks.",
+      parameters: "8B",
+      contextLength: "128K",
+      vramRequired: "16GB",
+      recommendedGpu: "L4 or A6000",
+      templateSlug: "vllm",
+      huggingFaceId: "meta-llama/Llama-3.1-8B-Instruct",
+      licenseType: "Llama 3.1 Community",
+      featured: false,
+      sortOrder: 3,
+    },
+    {
+      name: "DeepSeek R1",
+      slug: "deepseek-r1",
+      provider: "DeepSeek",
+      category: "Text Generation",
+      description:
+        "Advanced reasoning model with chain-of-thought capabilities. Excels at math, coding, and complex multi-step problem solving with transparent reasoning traces.",
+      parameters: "671B",
+      contextLength: "128K",
+      vramRequired: "640GB (8x H100)",
+      recommendedGpu: "H100 8x or H200 4x",
+      templateSlug: "vllm",
+      huggingFaceId: "deepseek-ai/DeepSeek-R1",
+      licenseType: "MIT",
+      featured: true,
+      sortOrder: 4,
+    },
+    {
+      name: "DeepSeek V3",
+      slug: "deepseek-v3",
+      provider: "DeepSeek",
+      category: "Text Generation",
+      description:
+        "MoE architecture with 671B total parameters (37B active). Top-tier performance on coding, math, and general tasks with efficient inference.",
+      parameters: "671B (37B active)",
+      contextLength: "128K",
+      vramRequired: "320GB (4x H100)",
+      recommendedGpu: "H100 4x or H200 4x",
+      templateSlug: "vllm",
+      huggingFaceId: "deepseek-ai/DeepSeek-V3",
+      licenseType: "MIT",
+      featured: true,
+      sortOrder: 5,
+    },
+    {
+      name: "Mistral Large 2",
+      slug: "mistral-large-2",
+      provider: "Mistral AI",
+      category: "Text Generation",
+      description:
+        "Mistral's flagship 123B parameter model with strong multilingual support, function calling, and JSON output. Competitive with GPT-4 on key benchmarks.",
+      parameters: "123B",
+      contextLength: "128K",
+      vramRequired: "160GB (2x H100)",
+      recommendedGpu: "H100 2x or A100-80GB 4x",
+      templateSlug: "vllm",
+      huggingFaceId: "mistralai/Mistral-Large-Instruct-2407",
+      licenseType: "Apache 2.0",
+      featured: false,
+      sortOrder: 6,
+    },
+    {
+      name: "Mixtral 8x22B",
+      slug: "mixtral-8x22b",
+      provider: "Mistral AI",
+      category: "Text Generation",
+      description:
+        "Sparse mixture-of-experts model with 176B total parameters (44B active per forward pass). Excellent throughput and quality for production workloads.",
+      parameters: "176B (44B active)",
+      contextLength: "64K",
+      vramRequired: "160GB (2x A100-80GB)",
+      recommendedGpu: "A100-80GB 2x or H100 2x",
+      templateSlug: "vllm",
+      huggingFaceId: "mistralai/Mixtral-8x22B-Instruct-v0.1",
+      licenseType: "Apache 2.0",
+      featured: false,
+      sortOrder: 7,
+    },
+    {
+      name: "Qwen 2.5 72B",
+      slug: "qwen-2-5-72b",
+      provider: "Alibaba",
+      category: "Text Generation",
+      description:
+        "Alibaba's 72B model with strong coding and math performance. Supports 32+ languages with excellent instruction following and structured output.",
+      parameters: "72B",
+      contextLength: "128K",
+      vramRequired: "140GB (2x A100-80GB)",
+      recommendedGpu: "A100-80GB 2x or H100 1x",
+      templateSlug: "vllm",
+      huggingFaceId: "Qwen/Qwen2.5-72B-Instruct",
+      licenseType: "Apache 2.0",
+      featured: false,
+      sortOrder: 8,
+    },
+    {
+      name: "Stable Diffusion XL",
+      slug: "sdxl",
+      provider: "Stability AI",
+      category: "Image Generation",
+      description:
+        "State-of-the-art text-to-image model generating 1024x1024 images with exceptional detail, composition, and prompt adherence. Supports ControlNet and LoRA.",
+      parameters: "6.6B",
+      contextLength: null,
+      vramRequired: "16GB",
+      recommendedGpu: "L4 or A6000",
+      templateSlug: "comfyui",
+      huggingFaceId: "stabilityai/stable-diffusion-xl-base-1.0",
+      licenseType: "OpenRAIL++",
+      featured: true,
+      sortOrder: 9,
+    },
+    {
+      name: "FLUX.1 Dev",
+      slug: "flux-1-dev",
+      provider: "Black Forest Labs",
+      category: "Image Generation",
+      description:
+        "Next-generation image model with superior text rendering, photorealism, and prompt understanding. 12B parameter rectified flow transformer architecture.",
+      parameters: "12B",
+      contextLength: null,
+      vramRequired: "24GB",
+      recommendedGpu: "A6000 or RTX 6000 Ada",
+      templateSlug: "comfyui",
+      huggingFaceId: "black-forest-labs/FLUX.1-dev",
+      licenseType: "FLUX.1 Non-Commercial",
+      featured: true,
+      sortOrder: 10,
+    },
+    {
+      name: "Whisper Large V3",
+      slug: "whisper-large-v3",
+      provider: "OpenAI",
+      category: "Speech-to-Text",
+      description:
+        "Best-in-class speech recognition model supporting 99+ languages with automatic language detection, translation, and timestamp generation.",
+      parameters: "1.55B",
+      contextLength: null,
+      vramRequired: "10GB",
+      recommendedGpu: "L4",
+      templateSlug: "pytorch",
+      huggingFaceId: "openai/whisper-large-v3",
+      licenseType: "Apache 2.0",
+      featured: false,
+      sortOrder: 11,
+    },
+    {
+      name: "Phi-3 Medium 128K",
+      slug: "phi-3-medium",
+      provider: "Microsoft",
+      category: "Text Generation",
+      description:
+        "Microsoft's efficient 14B model with 128K context. Exceptional reasoning for its size, optimized for on-device and edge deployment scenarios.",
+      parameters: "14B",
+      contextLength: "128K",
+      vramRequired: "24GB",
+      recommendedGpu: "L4 or A6000",
+      templateSlug: "ollama",
+      huggingFaceId: "microsoft/Phi-3-medium-128k-instruct",
+      licenseType: "MIT",
+      featured: false,
+      sortOrder: 12,
+    },
+  ];
+
+  for (const model of models) {
+    await prisma.aIModel.upsert({
+      where: { slug: model.slug },
+      update: model,
+      create: model,
+    });
+  }
+  console.log(`✅ Seeded ${models.length} AI models`);
+
+  console.log("🎉 Seeding complete!");
 }
 
 main()
-  .catch((error) => {
-    console.error("❌ Seed failed:", error);
+  .catch((e) => {
+    console.error("❌ Seed failed:", e);
     process.exit(1);
   })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+  .finally(() => prisma.$disconnect());
