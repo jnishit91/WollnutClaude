@@ -71,20 +71,28 @@ function ModelCard({ model }: { model: ModelData }) {
         <span className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[11px] text-gray-400">
           {model.category}
         </span>
-        {model.templateSlug ? (
+        <div className="flex items-center gap-3">
           <Link
-            href={`/auth/signup`}
-            className="flex items-center gap-1 text-sm font-medium text-indigo-400 transition-colors hover:text-indigo-300"
+            href="/endpoints"
+            className="flex items-center gap-1 text-xs font-medium text-green-400 transition-colors hover:text-green-300"
           >
-            <Rocket className="h-3.5 w-3.5" />
-            Deploy
-            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+            <Rocket className="h-3 w-3" />
+            Endpoint
           </Link>
-        ) : (
-          <Link href={`/models/${model.slug}`} className="flex items-center gap-1 text-sm font-medium text-gray-400 transition-colors hover:text-white">
-            Details <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-        )}
+          {model.templateSlug ? (
+            <Link
+              href={`/auth/signup`}
+              className="flex items-center gap-1 text-sm font-medium text-indigo-400 transition-colors hover:text-indigo-300"
+            >
+              Deploy
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          ) : (
+            <Link href={`/models/${model.slug}`} className="flex items-center gap-1 text-sm font-medium text-gray-400 transition-colors hover:text-white">
+              Details <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          )}
+        </div>
       </div>
     </motion.div>
   );
